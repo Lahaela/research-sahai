@@ -1,0 +1,36 @@
+\documentclass[leqno]{article}
+\usepackage[left=0.5in,right=0.5in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amsfonts, color, booktabs, centernot, graphicx, fancyhdr}
+\setlength\parindent{0pt}
+\begin{document}
+\part*{June 5, 2014}
+Leah Dickstein
+
+\begin{align*}
+\textbf{Q1)} \quad x(n) &= ax(n-1)\\
+y(n) &= cx(n) + v(n)\\
+&\\
+x(0) &\sim N(0,1)\\
+v(n) &\sim N(0,\sigma_v^2)\\
+&\\
+\textbf{Distribution}: &\quad \frac{N(cx[n],\sigma_v^2)N(0,a^{2n})}{N(0,c^2a^{2n}+\sigma_v^2)}\\
+&\\
+\textbf{Q2)} \quad x(n) &= ax(n-1)+w(n-1)\\
+y(n) &= cx(n)+v(n)\\
+&\\
+w(n-1) &\sim N(0,\sigma_w^2)\\
+&\\
+\textbf{Distribution}: &\quad \frac{N(cx[n],\sigma_v^2)N(0,a^{2n}+\sigma_w^2\sum_{i=0}^{n-1}a^{2i})}{N(0,c^2a^{2n}+c^2\sigma_w^2\sum_{i=0}^{n-1}a^{2i}+\sigma_v^2)}
+\end{align*}
+
+In the previous Gaussian problem and in both these cases\\
+\[ \hat{x}[n] = \frac{y\sigma_x^2}{\sigma_y^2} \]
+
+\textbf{Gaussian}: $\hat{x}[n] = \frac{y\sigma^2}{\sigma^2+1}$\\\\
+\textbf{No Noise}: $\hat{x}[n] = \frac{1}{c}y[n]$\\\\
+\textbf{Noisy State, Noiseless Observation}: $\hat{x}[n] = \frac{1}{c}y[n]$\\\\
+\textbf{Noiseless State, Noisy Observation}: $\hat{x}[n] = \frac{yca^{2n}}{c^2a^{2n}+\sigma_v^2} = \frac{yc\sigma_x^2}{\sigma_y^2}$\\\\
+\textbf{Noisy State, Noisy Observation}: $\hat{x}[n] = \frac{yc(a^{2n}+\sigma_w^2\sum_{i=0}^{n-1}a^{2i})}{c^2(a^{2n}+\sigma_w^2\sum_{i=0}^{n-1}a^{2i})+\sigma_v^2}$
+
+\end{document}

@@ -1,0 +1,70 @@
+\documentclass[leqno,twocolumn]{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amsfonts, color, booktabs, centernot, graphicx, fancyhdr}
+\usepackage[linktoc=all,hidelinks]{hyperref}
+\setlength\parindent{0pt}
+\begin{document}
+\onecolumn
+\title{Journal of Fall 2014}
+\author{Leah Dickstein}
+
+\maketitle
+
+\tableofcontents
+
+\section{Nonlinear Memoryless Control: Tangent Line Approximation}
+
+\begin{align*}
+x(n) &= ax(n-1) + w(n-1)\\
+y(n) &= cx^2(n) + v1(n)\\
+y'(n) &= \alpha(n) x(n) + \beta(n) \\
+\hat{x}(n) &= fy'(n) + g\\
+{} \\
+min \mathbb{E}[||X - \hat{X}||^2] &= \mathbb{E}[||x(n) - fy'(n) - g||^2]\\
+{} \\
+\frac{d}{df} \: \mathbb{E}[||x(n) - fy'(n) - g||^2] &= \mathbb{E}[2(x(n) - fy'(n) - g)(-y'(n))] = 0\\
+&= \mathbb{E}[-x(n)y'(n) + fy'^2(n) + gy'(n)] = 0\\
+f\mathbb{E}[y'^2(n)] &= \mathbb{E}[x(n)y'(n)] - g\mathbb{E}[y'(n)]\\
+{} \\
+\frac{d}{dg} \: \mathbb{E}[||x(n) - fy'(n) - g||^2] &= \mathbb{E}[2(x(n) - fy'(n) - g)(-1)] = 0\\
+& \mathbb{E}[-x(n) + fy'(n) + g] = 0\\
+g &= \mathbb{E}[x(n) - fy'(n)]\\
+{} \\
+f \mathbb{E}[y'^2(n)] &= \mathbb{E}[x(n)y'(n)] - \mathbb{E}[y'(n)] \mathbb{E}[x(n) - fy'(n)] \\
+f (\mathbb{E}[y'^2(n)] - (\mathbb{E}[y'(n)])^2 ) &= \mathbb{E}[x(n)y'(n)] - \mathbb{E}[x(n)] \mathbb{E}[y'(n)] \\
+f &= \frac{cov(x(n), y(n) )}{var(y'(n))}\\
+{} \\
+\hat{X}(n) &= \frac{cov(x(n), y(n) )}{var(y'(n))} (y'(n) - \mathbb{E}[y'(n)] + \mathbb{E}[x(n)]
+\end{align*}
+
+
+Assuming $\alpha(n)$ and $\beta(n)$ are constants for a given $n$:
+\begin{align*}
+\mathbb{E}[x(n) (\alpha x(n) + \beta)] - \mathbb{E}[x(n)] \mathbb{E}[\alpha x(n) + \beta ] &= \alpha \mathbb{E}[x^2(n)] + \beta \mathbb{E}[x(n)] - \alpha (\mathbb{E}[x(n)])^2 - \beta \mathbb{E}[x(n)] \\
+&= \alpha \mathbb{E}[x^2(n)] - \alpha (\mathbb{E}[x(n)])^2 \\
+&= \alpha Var(x(n))\\
+{}\\
+\mathbb{E}[(\alpha x(n) + \beta)^2 ] - (\mathbb{E}[\alpha x(n) + \beta ])^2 &= \mathbb{E}[\alpha^2 x^2(n) + 2\alpha \beta x(n) + \beta^2] - \mathbb{E}[\alpha x(n) + \beta] \mathbb{E}[\alpha x(n) + \beta] \\
+&= \alpha^2 \mathbb{E}[x^2(n)] + 2 \alpha \beta \mathbb{E}[x(n)] + \beta^2 - \alpha^2 (\mathbb{E}[x(n)])^2 - 2 \alpha \beta \mathbb{E}[x(n)] - \beta^2 \\
+&= \alpha^2 \mathbb{E}[x^2(n)] - \alpha^2 (\mathbb{E}[x(n)])^2 \\
+&= \alpha^2 Var(x(n))\\
+{} \\
+L[X(n) | Y(n)] &= \frac{1}{\alpha} (Y(n) - \mathbb{E}[Y(n)]) + \mathbb{E}[X(n)]\\
+&= \frac{Y(n) - \mathbb{E}[\alpha X(n) + \beta]}{\alpha} + \mathbb{E}[X(n)]\\
+&= \frac{Y(n) - \beta}{\alpha}
+\end{align*}
+
+The calculation for $\alpha(n)$ and $\beta(n)$, if $y'$ is the function and $y'(n)$ is the realization of the function at timestep $n$:
+\begin{align*}
+\frac{dy}{dx} &= 2cx(n)\\
+y' - y'(n) &= \frac{dy}{dx} (x - x(n))\\
+y' &= \frac{dy}{dx} x + \left( y'(n) - \frac{dy}{dx} x(n) \right)\\
+&= \alpha x + \beta\\
+{} \\
+\alpha &= 2cx(n)\\
+\beta &= y'(n) - \alpha x(n)
+\end{align*}
+
+If I attempt to calculate the linear estimator after plugging in what $\alpha$ and $\beta$ are, I'll just get the linear estimator of X and Y (where Y is nonlinear, the estimator gave unbounded error.)
+\end{document}

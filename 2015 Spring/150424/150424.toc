@@ -1,0 +1,5 @@
+\contentsline {section}{\numberline {1}Adding Quantization Noise: Theoretical}{1}{section.1}
+\contentsline {subsection}{\numberline {1.1}Model of Summer 2014:}{1}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Model of 2015-03-04:}{1}{subsection.1.2}
+\contentsline {section}{\numberline {2}Empirical Support of Theoretical Curves}{2}{section.2}
+\contentsline {section}{\numberline {3}2015-04-24 Plotting Alpha vs A}{2}{section.3}

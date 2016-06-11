@@ -1,0 +1,18 @@
+\contentsline {section}{\numberline {1}Experiment 1}{2}
+\contentsline {subsection}{\numberline {1.1}Action Plan}{2}
+\contentsline {subsection}{\numberline {1.2}Thought Process}{2}
+\contentsline {section}{\numberline {2}Experiment 2}{3}
+\contentsline {subsection}{\numberline {2.1}Factors that affect knowledge/grades/expected value}{4}
+\contentsline {subsection}{\numberline {2.2}Ideal Experiment}{4}
+\contentsline {subsection}{\numberline {2.3}Realistic Experiment}{5}
+\contentsline {part}{Recap from 2014-03-30}{5}
+\contentsline {section}{\numberline {3}Questions}{5}
+\contentsline {section}{\numberline {4}Description}{5}
+\contentsline {section}{\numberline {5}Comparison}{5}
+\contentsline {subsection}{\numberline {5.1}Differences with Gireeja's model}{5}
+\contentsline {subsection}{\numberline {5.2}Connection to Gireeja's paper}{6}
+\contentsline {subsection}{\numberline {5.3}What this means}{6}
+\contentsline {section}{\numberline {6}Data: Updated to 11B}{7}
+\contentsline {subsection}{\numberline {6.1}Discussion Solutions}{7}
+\contentsline {subsection}{\numberline {6.2}HW Write Your Own Problem}{9}
+\contentsline {section}{\numberline {7}Moving Forward}{10}

@@ -1,0 +1,7 @@
+\contentsline {section}{\numberline {1}Experiment 3}{1}
+\contentsline {subsection}{\numberline {1.1}Time deadline}{1}
+\contentsline {subsection}{\numberline {1.2}Number of people rewarded}{2}
+\contentsline {subsection}{\numberline {1.3}LaTeX}{2}
+\contentsline {subsection}{\numberline {1.4}Low Self Esteem}{2}
+\contentsline {subsubsection}{\numberline {1.4.1}Bins}{2}
+\contentsline {subsection}{\numberline {1.5}Discussion Parties}{2}

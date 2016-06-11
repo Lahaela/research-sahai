@@ -1,0 +1,20 @@
+\contentsline {section}{System Setup}{2}{section*.2}
+\contentsline {section}{New Cost Function -- Penalize Large Control Power}{2}{section*.3}
+\contentsline {subsection}{Optimal Control -- No V(n), $\gamma = 1$, No Delay}{2}{section*.4}
+\contentsline {subsection}{A Bound -- No V(n), $\gamma = 1$, No Delay}{2}{section*.5}
+\contentsline {section}{Original Cost Function: Minimize Mean Square State}{3}{section*.6}
+\contentsline {subsection}{Optimal Control -- No V(n), $\gamma = 1$, Delay}{3}{section*.7}
+\contentsline {subsection}{A Bound -- No V(n), $\gamma = 1$, Delay}{3}{section*.8}
+\contentsline {subsection}{Optimal Control -- No V(n), $\gamma = 1$, No Delay}{4}{section*.9}
+\contentsline {subsection}{Optimal Control -- V(n), $\gamma = 1$, Delay}{4}{section*.10}
+\contentsline {subsection}{A Bound -- V(n), $\gamma = 1$, Delay}{5}{section*.11}
+\contentsline {subsection}{Optimal Control -- V(n) $\gamma = 1$, No Delay}{5}{section*.12}
+\contentsline {subsection}{With No Delay, Memoryless Control is Optimal - Full Noise}{5}{section*.13}
+\contentsline {section}{1-Memory Control}{7}{section*.14}
+\contentsline {subsection}{Delay = 1 (Mod 2)}{7}{section*.15}
+\contentsline {subsubsection}{\numberline {0.0.1}No Noise}{8}{subsubsection.0.0.1}
+\contentsline {subsubsection}{\numberline {0.0.2}Additive Noise only}{8}{subsubsection.0.0.2}
+\contentsline {subsubsection}{\numberline {0.0.3}Multiplicative Noise only}{8}{subsubsection.0.0.3}
+\contentsline {section}{Memory Control}{9}{section*.16}
+\contentsline {subsection}{Lemma: After Control is Applied, State is Uncorrelated w/ Previous Observations}{9}{section*.17}
+\contentsline {subsection}{Calculating Optimal Memory-Based Control w/ Linear Algebra}{10}{section*.18}

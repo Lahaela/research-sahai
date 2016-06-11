@@ -1,0 +1,1 @@
+\contentsline {section}{\numberline {1}Nonlinear Memoryless Control: Tangent Line Approximation}{1}{section.1}

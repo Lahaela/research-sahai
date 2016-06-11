@@ -1,0 +1,57 @@
+\documentclass[leqno]{article}
+\usepackage[left=0.5in,right=0.5in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amsfonts, color, booktabs, centernot, graphicx, fancyhdr}
+\setlength\parindent{0pt}
+\begin{document}
+\title{Notes on CS70 Discussion Solutions CrowdSourcing Model}
+\author{Leah Dickstein}
+
+\maketitle
+
+\textbf{Current working model:} 
+\begin{align*}
+grade &= \frac{-time}{efficiency} + knowledge*time + reward * Pr[reward]\\
+&= -at + bt + AP[A], 0<a<1 b>1
+\end{align*}
+
+\tableofcontents
+
+\section{Experiment 3}
+Parameters that we could tweak:
+\begin{itemize}
+\item Time deadline
+\item Requirement to LaTeX (have a dropbox)
+\item Low self esteem / perception of being a weak player
+\item Number of people rewarded
+\end{itemize}
+
+\subsection{Time deadline}
+\begin{enumerate}
+\item Require solutions to be due the day of (e.g. Tuesday or Thursday, any later and people will procrastinate and never get to it)
+\item Turn in solutions right before the midterm (this is bad because it incentivizes cramming, but good because it helps reviewing)
+\item Decrease score as time goes on (incentivizes turning things in early, but allows for turning things in late)
+\end{enumerate}
+
+\subsection{Number of people rewarded}
+Tell students "You get rewarded if you're good enough"\\
+Arbitrary number of students awarded each week based on reader rubric of what is "good enough"
+
+\subsection{LaTeX}
+Have a dropbox to turn in binder paper versions?
+
+\subsection{Low Self Esteem}
+Ego booster problems (WarmUp every time), gradient of extra credit (e.g. 1 point for easy problem, 2 points for hard problem)
+\subsubsection{Bins}
+Having a bin for every grade group (e.g. rank 1-50, 51-100, etc.) and picking top two from each bin (so lower bins are still incentivized to try!\\
+
+Need to maintain privacy of grades: people selected, don't post which bin they're in\\
+
+\subsection{Discussion Parties}
+Have a Discussion Party Tuesday afternoon before homework is assigned
+
+\section{Comparison of Correct Solutions}
+--Length isn't a factor, maybe moderate correlation
+--Maybe see how many of the bids are actually correct? Sometimes only one person is rewarded because the other bids aren't wholly correct
+
+\end{document}
