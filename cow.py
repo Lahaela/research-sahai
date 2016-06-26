@@ -37,8 +37,8 @@ def hs_rs_table(op_SNR, rate, blocklength):
                 for hcf in hcflst]
     return [op_SNR, np.array(reeddrop)]
 
-def shannon_table(rate):
-    op_SNR = np.arange(-20, 5, 0.01)
+def shannon_table(rate, op_SNR = np.arange(-20, 5, 0.01)):
+    # op_SNR = np.arange(-20, 5, 0.01)
     shannon = []
     for SNR in op_SNR:
         C = np.log2(1 + 10**(SNR/10))
@@ -78,7 +78,7 @@ def save_table(table, filename):
     f = open(filename, 'w')
     pickle.dump(table, f)
     f.close()
-    
+
 def load_table(filename):
     f = open(filename, 'r')
     table = pickle.load(f)
@@ -95,7 +95,7 @@ def shannon_combo(N, a, rate1, p1, SNR):
 def adaptive_endpoints(fx, fade):
     grad = np.gradient(fx, 10**(-3))*10**(-3) # Magic
 #     grad2 = np.gradient(grad, 10**(-4))*10**(-4)
-    
+
     ind = argrelextrema(grad, np.less)[0]
     ind = ind[np.argsort(grad[ind])]
     if len(ind) > 0:
@@ -104,7 +104,7 @@ def adaptive_endpoints(fx, fade):
     else:
         mid = 0
         end1, end2 = fade[0], fade[0]+10**(-3)
-    
+
     endpts = [end1, end2, 2]
     return endpts
 
@@ -151,7 +151,7 @@ def p_combo(codetable, a, op_SNR, endpoint, dfade):
 
 def p_protocol(codetable, N, op_SNR, endpoint, dfade):
     psingle = p_single(codetable, op_SNR, endpoint, dfade)
-    return sum([nCr(N, a) * (1-psingle)**a * psingle**(N-a) * 
+    return sum([nCr(N, a) * (1-psingle)**a * psingle**(N-a) *
                 (1-(1-p_combo(codetable, a, op_SNR, endpoint, dfade))**(N-a)) for a in range(N)])
 
 def energy_combining(codingscheme, dSNR, dfade, endpoint, threshold, start_SNR, start_nodes, end_nodes):
@@ -172,7 +172,7 @@ def energy_combining(codingscheme, dSNR, dfade, endpoint, threshold, start_SNR, 
     plt.xlabel('Number of Nodes', fontsize=18)
     plt.ylabel('Nominal SNR Needed (dB)', fontsize=18, labelpad=20)
     plt.title('Hockey {0} ECC'.format(threshold), fontsize=24)
-    
+
     return np.array(nominal_needed)
 
 # Loudest Talker Functions
@@ -199,7 +199,7 @@ def loudest_talker(codingscheme, dSNR, target, paddratio, start_SNR, start_nodes
             pbadfade = 1 - np.exp(-hcrit)
             psingle = pbadfade + (1-pbadfade)*padd
 
-            pprotocol = sum([nCr(N, a) * (1-psingle)**a * psingle**(N-a) * 
+            pprotocol = sum([nCr(N, a) * (1-psingle)**a * psingle**(N-a) *
                              (1-(1-(pbadfade**a + (1-pbadfade**a) * padd))**(N-a)) for a in range(N)])
         nomSNR.append(SNR)
         # print('Loudest Speaker', N, SNR, actualSNR)
@@ -208,7 +208,7 @@ def loudest_talker(codingscheme, dSNR, target, paddratio, start_SNR, start_nodes
     # plt.xlabel('Number of Nodes', fontsize=18)
     # plt.ylabel('Nominal SNR Needed (dB)', fontsize=18, labelpad=20)
     # plt.title('Hockey 10^{-9} Loudest Talker', fontsize=24)
-    
+
     return np.array(nomSNR)
 
 # Uplink Functions
@@ -240,5 +240,5 @@ def uplink(codingscheme, dSNR, target, paddratio, start_SNR, start_nodes, end_no
     # plt.xlabel('Number of Nodes', fontsize=18)
     # plt.ylabel('Nominal SNR Needed (dB)', fontsize=18, labelpad=20)
     # plt.title('Hockey 10^{-9} Uplink', fontsize=24)
-    
+
     return np.array(nomSNR)

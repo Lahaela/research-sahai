@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import math
 from cow import *
 
+protocol_target = 10**(-9)
+extension = ".in"
+
 # 21 from Hamming Code
 # Quantize by 21 (to get all possible RS blocklengths)
 # toy: 1400 = min bits for one phase, 4200 = entire protocol
@@ -75,12 +78,9 @@ def xor_analysis_opt(N, p_add_3, nom_SNR, actual_SNR, p_add_1=10**(-9), p_add_2=
     return result
 
 def optimize_1(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4, downtarget=10**(-10), uptarget=10**(-10)):
-    """The most naive form of optimization, where we assume the blocklength is
-    divided evenly between all three phases.
+    """The most naive form of optimization, where we assume the blocklength is divided evenly between all three phases.
 
-    We also set the minimum SNR experienced at the receiver to be such that all
-    three phases meet their additive noise targets. Additive noise is defined to be
-    the noise other than fade that would cause the error correcting code to be corrupted.
+    We also set the minimum SNR experienced at the receiver to be such that all three phases meet their additive noise targets. Additive noise is defined to be the noise other than fade that would cause the error correcting code to be corrupted.
 
     Arguments:
       N {int} -- The number of nodes/users total in the control system
@@ -102,16 +102,15 @@ def optimize_1(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protoc
       3. The blocklength of the Uplink Phase in bits
       4. The blocklength of the XOR Phase in bits
     """
-    protocol_target = 10**(-9)
     p_add_3 = 10**(-10)
 
     downbit = upbit = xorbit = protocol/3
-    downTable = hs_rs_table(rx_SNR_range, N*160/downbit, int(downbit/21))
+    downTable = load_table(filepath_down+str(N)+extension)
     downfunc = interp1d(downTable[0], downTable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
-    upTable = hs_rs_table(rx_SNR_range, N*160/upbit, int(upbit/21/N))
+    upTable = load_table(filepath_up+str(N)+extension)
     upfunc = interp1d(upTable[0], upTable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
-    xor_table = hs_rs_table(rx_SNR_range, N*160/xorbit, int(xorbit/21))
+    xor_table = load_table(filepath_down+str(N)+extension)
     xor_func = interp1d(xor_table[0], xor_table[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
     down_SNR = downTable[0][np.where(downTable[1]<=downtarget)[0][0]]
@@ -123,6 +122,7 @@ def optimize_1(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protoc
         xor_opt = xor_analysis_opt(N, xor_func(actual_SNR), nominal_SNR, actual_SNR, downfunc(actual_SNR), upfunc(actual_SNR))
         if 1-xor_opt <= protocol_target:
             return (actual_SNR, nominal_SNR, downbit, upbit, xorbit)
+    return (float("inf"), float("inf"), downbit, upbit, xorbit)
 
 def optimize_2(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4, downtarget=10**(-9), uptarget=10**(-9)):
     """We assume the blocklength is divided evenly among all three phases.
@@ -150,19 +150,17 @@ def optimize_2(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protoc
       3. The blocklength of the Uplink Phase in bits
       4. The blocklength of the XOR Phase in bits
     """
-    protocol_target = 10**(-9)
-
     downbit = upbit = xorbit = protocol/3
-    downTable = hs_rs_table(rx_SNR_range, N*160/downbit, int(downbit/21))
+    downTable = load_table(filepath_down+str(N)+extension)
     downfunc = interp1d(downTable[0], downTable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
-    upTable = hs_rs_table(rx_SNR_range, N*160/upbit, int(upbit/21/N))
+    upTable = load_table(filepath_up+str(N)+extension)
     upfunc = interp1d(upTable[0], upTable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
-    xor_table = hs_rs_table(rx_SNR_range, N*160/xorbit, int(xorbit/21))
+    xor_table = load_table(filepath_down+str(N)+extension)
     xor_func = interp1d(xor_table[0], xor_table[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
     for nominal_SNR in tx_SNR_range:
-        for actual_SNR in arange(max(0, nominal_SNR-90), nominal_SNR, 1):
+        for actual_SNR in np.arange(max(0, nominal_SNR-90), nominal_SNR, 0.1):
             if downfunc(actual_SNR) > downtarget: continue
             if upfunc(actual_SNR) > uptarget: continue
 
@@ -170,6 +168,7 @@ def optimize_2(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protoc
             xor_opt = xor_analysis_opt(N, p_add_3, nominal_SNR, actual_SNR, downfunc(actual_SNR), upfunc(actual_SNR))
             if 1-xor_opt <= protocol_target:
                 return (actual_SNR, nominal_SNR, downbit, upbit, xorbit)
+    return (float("inf"), float("inf"), downbit, upbit, xorbit)
 
 def optimize_3(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4):
     """We assume the blocklength is evenly divided among all three phases.
@@ -193,29 +192,26 @@ def optimize_3(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protoc
       3. The blocklength of the Uplink Phase in bits
       4. The blocklength of the XOR Phase in bits
     """
-    protocol_target = 10**(-9)
-
     downbit = upbit = xorbit = protocol/3
-    downTable = hs_rs_table(rx_SNR_range, N*160/downbit, int(downbit/21))
+    downTable = load_table(filepath_down+str(N)+extension)
     downfunc = interp1d(downTable[0], downTable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
-    upTable = hs_rs_table(rx_SNR_range, N*160/upbit, int(upbit/21/N))
+    upTable = load_table(filepath_up+str(N)+extension)
     upfunc = interp1d(upTable[0], upTable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
-    xor_table = hs_rs_table(rx_SNR_range, N*160/xorbit, int(xorbit/21))
+    xor_table = load_table(filepath_down+str(N)+extension)
     xor_func = interp1d(xor_table[0], xor_table[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
     for nominal_SNR in tx_SNR_range:
-        for actual_SNR in arange(0, nominal_SNR, 1):
+        for actual_SNR in np.arange(0, nominal_SNR, 0.1):
             p_add_3 = xor_func(actual_SNR)
             xor_opt = xor_analysis_opt(N, p_add_3, nominal_SNR, actual_SNR, downfunc(actual_SNR), upfunc(actual_SNR))
             if 1-xor_opt <= protocol_target:
                 return (actual_SNR, nominal_SNR, downbit, upbit, xorbit)
+    return (float("inf"), float("inf"), downbit, upbit, xorbit)
 
 
 def optimize_4(N, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4, downtarget=10**(-9), uptarget=10**(-9)):
     """We enforce a Downlink additive noise target and an Uplink additive noise target. We do NOT assume the blocklength is evenly divided among all three phases. Instead, we allocate the minimum blocklength so that Downlink meets its additive noise target. Then we allocate the minimum blocklength so that Uplink meets its additive noise target. The remaining blocklength is allocated to the XOR phase, which determines the XOR additive noise. The optimization module then finds the transmitter SNR and receiver SNR pair so that the combination of parameters will allow the protocl to meet its overall reliability target.
-
-    [description]
 
     Arguments:
       N {int} -- The number of nodes/users total in the control system
@@ -236,14 +232,13 @@ def optimize_4(N, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4, do
       3. The blocklength of the Uplink Phase in bits
       4. The blocklength of the XOR Phase in bits
     """
-    protocol_target = 10**(-9)
     downFile = filepath_down + str(N) + '.in'
     downNode = load_table(downFile)
     upFile = filepath_up + str(N) + '.in'
     upNode = load_table(upFile)
 
     for nominal_SNR in tx_SNR_range:
-        for actual_SNR in arange(max(0, nominal_SNR-90), nominal_SNR, 1):
+        for actual_SNR in np.arange(max(0, nominal_SNR-90), nominal_SNR, 0.1):
             downbit, upbit = float("inf"), float("inf")
             for bit in downNode.bitrange:
                 bittable = downNode.tables[bit]
@@ -272,23 +267,24 @@ def optimize_4(N, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4, do
             xor_opt = xor_analysis_opt(N, reeddrop, nominal_SNR, actual_SNR, downtarget, uptarget)
             if 1-xor_opt <= protocol_target:
                 return (actual_SNR, nominal_SNR, downbit, upbit, xorbit)
-#     return (10, 10, 10, 10, 10) # fake data to show answer outside nominal range
+#     return (nan, nan, nan, nan, nan) # default behavior when nothing is returned
 
+# At the moment, not using this
 def optimize_5(N, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4):
-  """We do NOT assume blocklength is evenly divided among the three phases. We don't enforce additive noise constraints on Downlink/Uplink/XOR, instead letting the optimization find the right Downlink/Uplink additive noise. As of this implementation we assume Downlink/Uplink has the same additive noise constraint but this can change in the future. We find the right transmitter SNR and receiver SNR pair and blocklength allocation for the overall protocol to meet its reliability target.
+    """We do NOT assume blocklength is evenly divided among the three phases. We don't enforce additive noise constraints on Downlink/Uplink/XOR, instead letting the optimization find the right Downlink/Uplink additive noise. As of this implementation we assume Downlink/Uplink has the same additive noise constraint but this can change in the future. We find the right transmitter SNR and receiver SNR pair and blocklength allocation for the overall protocol to meet its reliability target.
 
-  Arguments:
-    N {int} -- The number of nodes/users total in the control system
-    tx_SNR_range {np.arange} -- [description]
-    filepath_down {string} -- [description]
-    filepath_up {string} -- [description]
+    Arguments:
+      N {int} -- The number of nodes/users total in the control system
+      tx_SNR_range {np.arange} -- [description]
+      filepath_down {string} -- [description]
+      filepath_up {string} -- [description]
 
-  Keyword Arguments:
-    protocol {int} -- The length of the entire protocol (all phases combined) in bits (default: {40,000})
+    Keyword Arguments:
+      protocol {int} -- The length of the entire protocol (all phases combined) in bits (default: {40,000})
 
-  Returns:
-    [type] -- [description]
-  """
+    Returns:
+      [type] -- [description]
+    """
     linktarget = [10**i for i in range(-10, -3)]
     optimize_target = zeros((7, 6))
     for idx in range(7):
