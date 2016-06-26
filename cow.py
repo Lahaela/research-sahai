@@ -111,18 +111,18 @@ def adaptive_endpoints(fx, fade):
 # Adaptive, Energy Combining
 def p_single(codetable, op_SNR, endpoint, dfade):
     fadexp = sp.stats.expon()
-    fade = arange(0, endpoint, 10**(-3)) # Magic
+    fade = np.arange(0, endpoint, 10**(-3)) # Magic
     psingle = []
 #     snrlookup = codetable(op_SNR+log10(fade))
 #     fadepr = fadexp.pdf(fade)
     optimize = codetable(op_SNR+10*np.log10(fade)) * fadexp.pdf(fade)
     endpts = adaptive_endpoints(optimize, fade)
-    fade = arange(0, endpts[0], dfade[0])
+    fade = np.arange(0, endpts[0], dfade[0])
     fadepr = fadexp.pdf(fade)
     snrlookup = codetable(op_SNR+10*np.log10(fade))
     psingle.append(dfade[0]*np.dot(snrlookup, fadepr))
     for idx in range(1, len(endpts)):
-        fade = arange(endpts[idx-1], endpts[idx], dfade[idx])
+        fade = np.arange(endpts[idx-1], endpts[idx], dfade[idx])
         snrlookup = codetable(op_SNR+10*np.log10(fade))
         fadepr = fadexp.pdf(fade)
         psingle.append(dfade[idx]*np.dot(snrlookup, fadepr))
@@ -133,17 +133,17 @@ def p_combo(codetable, a, op_SNR, endpoint, dfade):
         return 1.0
     fadexp = sp.stats.erlang(a)
     pcombo = []
-    fade = arange(0, endpoint, 10**(-3))
+    fade = np.arange(0, endpoint, 10**(-3))
     snrlookup = codetable(op_SNR+10*np.log10(fade))
     fadepr = fadexp.pdf(fade)
     optimize = snrlookup * fadepr
     endpts = adaptive_endpoints(optimize, fade)
-    fade = arange(0, endpts[0], dfade[0])
+    fade = np.arange(0, endpts[0], dfade[0])
     snrlookup = codetable(op_SNR+10*np.log10(fade))
     fadepr = fadexp.pdf(fade)
     pcombo.append(dfade[0]*np.dot(snrlookup, fadepr))
     for idx in range(1, len(endpts)):
-        fade = arange(endpts[idx-1], endpts[idx], dfade[idx])
+        fade = np.arange(endpts[idx-1], endpts[idx], dfade[idx])
         snrlookup = codetable(op_SNR+10*np.log10(fade))
         fadepr = fadexp.pdf(fade)
         pcombo.append(dfade[idx]*np.dot(snrlookup, fadepr))
@@ -164,15 +164,15 @@ def energy_combining(codingscheme, dSNR, dfade, endpoint, threshold, start_SNR, 
         pprotocol = 1.0
         while pprotocol > threshold:
             SNR += dSNR
-            pprotocol = p_protocol(func, N, SNR, end, dfade)
+            pprotocol = p_protocol(func, N, SNR, endpoint, dfade)
         print('P(protocol)', N, SNR, pprotocol)
         nominal_needed.append(SNR)
 
-    plt.plot(range(start_nodes, end_nodes), np.array(nominal_needed), lw=2.0, label=codingscheme)
-    plt.xlabel('Number of Nodes', fontsize=18)
-    plt.ylabel('Nominal SNR Needed (dB)', fontsize=18, labelpad=20)
-    plt.title('Hockey {0} ECC'.format(threshold), fontsize=24)
-
+    # plt.figure()
+    # plt.plot(range(start_nodes, end_nodes), np.array(nominal_needed), lw=2.0, label=codingscheme)
+    # plt.xlabel('Number of Nodes', fontsize=18)
+    # plt.ylabel('Nominal SNR Needed (dB)', fontsize=18, labelpad=20)
+    # plt.title('Hockey {0} ECC'.format(threshold), fontsize=24)
     return np.array(nominal_needed)
 
 # Loudest Talker Functions
