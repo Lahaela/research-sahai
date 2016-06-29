@@ -1,6 +1,7 @@
 from __future__ import division
 import numpy as np
 import scipy as sp
+from scipy.stats import binom
 import matplotlib.pyplot as plt
 import math
 from cow import *
@@ -113,9 +114,9 @@ def optimize_1(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protoc
     xor_table = load_table(filepath_down+str(N)+extension)
     xor_func = interp1d(xor_table[0], xor_table[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
-    down_SNR = downTable[0][np.where(downTable[1]<=downtarget)[0][0]]
-    up_SNR = upTable[0][np.where(upTable[1]<=uptarget)[0][0]]
-    xor_SNR = xor_table[0][np.where(xor_table[1]<=p_add_3)[0][0]]
+    down_SNR = downTable[0][np.where(np.array(downTable[1])<=downtarget)[0][0]]
+    up_SNR = upTable[0][np.where(np.array(upTable[1])<=uptarget)[0][0]]
+    xor_SNR = xor_table[0][np.where(np.array(xor_table[1])<=p_add_3)[0][0]]
     actual_SNR = max(down_SNR, up_SNR, xor_SNR)
 
     for nominal_SNR in tx_SNR_range:
@@ -160,7 +161,7 @@ def optimize_2(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protoc
     xor_func = interp1d(xor_table[0], xor_table[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
     for nominal_SNR in tx_SNR_range:
-        for actual_SNR in np.arange(max(0, nominal_SNR-90), nominal_SNR, 0.1):
+        for actual_SNR in np.arange(max(-1, nominal_SNR-90), nominal_SNR, 0.1):
             if downfunc(actual_SNR) > downtarget: continue
             if upfunc(actual_SNR) > uptarget: continue
 
@@ -238,15 +239,15 @@ def optimize_4(N, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4, do
     upNode = load_table(upFile)
 
     for nominal_SNR in tx_SNR_range:
-        for actual_SNR in np.arange(max(0, nominal_SNR-90), nominal_SNR, 0.1):
+        for actual_SNR in np.arange(max(-1, nominal_SNR-90), nominal_SNR, 0.1):
             downbit, upbit = float("inf"), float("inf")
-            for bit in downNode.bitrange:
+            for bit in sorted(downNode.tables.keys()):
                 bittable = downNode.tables[bit]
                 func = interp1d(bittable[0], bittable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
                 if func(actual_SNR) <= downtarget:
                     downbit = bit
                     break
-            for bit in upNode.bitrange:
+            for bit in sorted(upNode.tables.keys()):
                 bittable = upNode.tables[bit]
                 func = interp1d(bittable[0], bittable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
                 if func(actual_SNR) <= uptarget:
@@ -263,11 +264,12 @@ def optimize_4(N, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4, do
             pbitdrop = Q(np.sqrt(2*10**(actual_SNR/10)))
             hcerr = 1 - ((1-pbitdrop)**7 + 7*pbitdrop*(1-pbitdrop)**6)
             hcf = 1 - (1-hcerr)**3
-            reeddrop = sum([nCr(blocklength, d)* hcf**d *(1-hcf)**(blocklength-d) for d in range(int(k/2)+1, blocklength)])
+            reeddrop = 1-binom.cdf(int(k/2), blocklength, hcf)
+            # reeddrop = sum([nCr(blocklength, d)* hcf**d *(1-hcf)**(blocklength-d) for d in range(int(k/2)+1, blocklength)])
             xor_opt = xor_analysis_opt(N, reeddrop, nominal_SNR, actual_SNR, downtarget, uptarget)
             if 1-xor_opt <= protocol_target:
                 return (actual_SNR, nominal_SNR, downbit, upbit, xorbit)
-#     return (nan, nan, nan, nan, nan) # default behavior when nothing is returned
+    return (np.nan, np.nan, np.nan, np.nan, np.nan) # default behavior when nothing is returned
 
 # At the moment, not using this
 def optimize_5(N, tx_SNR_range, filepath_down, filepath_up, protocol=4*10**4):
