@@ -203,7 +203,7 @@ def optimize_3(N, rx_SNR_range, tx_SNR_range, filepath_down, filepath_up, protoc
     xor_func = interp1d(xor_table[0], xor_table[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
 
     for nominal_SNR in tx_SNR_range:
-        for actual_SNR in np.arange(0, nominal_SNR, 0.1):
+        for actual_SNR in np.arange(-20, nominal_SNR, 0.1):
             p_add_3 = xor_func(actual_SNR)
             xor_opt = xor_analysis_opt(N, p_add_3, nominal_SNR, actual_SNR, downfunc(actual_SNR), upfunc(actual_SNR))
             if 1-xor_opt <= protocol_target:
