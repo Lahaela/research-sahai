@@ -3,6 +3,7 @@ import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
 from scipy import stats
+from scipy.stats import binom
 from scipy.signal import argrelextrema
 from scipy.interpolate import interp1d
 import operator as op
@@ -93,8 +94,8 @@ def shannon_combo(N, a, rate1, p1, SNR):
     return p2**a * min(p2/p1, 1)
 
 def adaptive_endpoints(fx, fade):
-    grad = np.gradient(fx, 10**(-3))*10**(-3) # Magic
-#     grad2 = np.gradient(grad, 10**(-4))*10**(-4)
+    # grad = np.gradient(fx, 10**(-3))*10**(-3) # Magic
+    grad = np.gradient(fx, 10**(-2)) * 10**(-2)
 
     ind = argrelextrema(grad, np.less)[0]
     ind = ind[np.argsort(grad[ind])]
@@ -149,6 +150,31 @@ def p_combo(codetable, a, op_SNR, endpoint, dfade):
         pcombo.append(dfade[idx]*np.dot(snrlookup, fadepr))
     return sum(pcombo)
 
+def p_max(codetable, a, tSNR, endpoint, dfade):
+    if a == 0:
+        return 1.0
+    pmax = 0.0
+    fadexp = sp.stats.expon()
+    fade = np.arange(0, endpoint, 10**(-3))
+    et = fadexp.pdf(fade)
+    maxfunc = a*et*(1-et)**(a-1)
+    snrlookup = codetable(tSNR+10*np.log10(fade))
+    optimize = maxfunc * snrlookup
+    endpts = adaptive_endpoints(optimize, fade)
+
+    fade = np.arange(0, endpts[0], dfade[0])
+    snrlookup = codetable(tSNR+10*np.log10(fade))
+    et = fadexp.pdf(fade)
+    fadepr = a*et*(1-et)**(a-1)
+    pmax += dfade[0]*np.dot(snrlookup, fadepr)
+    for idx in range(1, len(endpts)):
+        fade = np.arange(endpts[idx-1], endpts[idx], dfade[idx])
+        snrlookup = codetable(tSNR+10*np.log10(fade))
+        et = fadexp.pdf(fade)
+        fadepr = a*et*(1-et)**(a-1)
+        pmax += dfade[idx]*np.dot(snrlookup, fadepr)
+    return pmax
+
 def p_protocol(codetable, N, op_SNR, endpoint, dfade):
     psingle = p_single(codetable, op_SNR, endpoint, dfade)
     return sum([nCr(N, a) * (1-psingle)**a * psingle**(N-a) *
@@ -201,6 +227,14 @@ def loudest_talker(codingscheme, dSNR, target, paddratio, start_SNR, start_nodes
 
             pprotocol = sum([nCr(N, a) * (1-psingle)**a * psingle**(N-a) *
                              (1-(1-(pbadfade**a + (1-pbadfade**a) * padd))**(N-a)) for a in range(N)])
+            # if SNR <= 18.63:
+            # print SNR
+            # print psingle
+            # print pbadfade, (1-pbadfade)*padd
+            # print [(1-(1-(pbadfade**a + (1-pbadfade**a) * padd))**(N-a)) for a in range(N)]
+            # print [nCr(N, a) * (1-psingle)**a * psingle**(N-a) for a in range(N)]
+            # print [nCr(N, a) * (1-psingle)**a * psingle**(N-a) *
+                         # (1-(1-(pbadfade**a + (1-pbadfade**a) * padd))**(N-a)) for a in range(N)]
         nomSNR.append(SNR)
         # print('Loudest Speaker', N, SNR, actualSNR)
 
@@ -210,6 +244,60 @@ def loudest_talker(codingscheme, dSNR, target, paddratio, start_SNR, start_nodes
     # plt.title('Hockey 10^{-9} Loudest Talker', fontsize=24)
 
     return np.array(nomSNR)
+
+def loudest_talker_integral(N, codingscheme, start_tSNR, dfade, dSNR = 0.1, endpoint = 2, target = 10**(-9)):
+    filename = codingscheme + '/n' + str(N) + '.in'
+    codetable = load_table(filename)
+    tablefunc = interp1d(codetable[0], codetable[1], kind='linear', bounds_error=False, fill_value=(1.0, 0.0))
+    # rSNR2 = codetable[0][np.where(np.array(codetable[1])<=pa2)[0][0]]
+
+    tSNR = start_tSNR-dSNR
+    pprotocol = 1.0
+    while pprotocol > target:
+        tSNR += dSNR
+        # h2 = 10**((rSNR2 - tSNR)/10)
+        # pf2 = 1 - np.exp(-h2)
+        psingle = p_single(tablefunc, tSNR, endpoint, dfade)
+        rv = binom(N, 1-psingle)
+        # a_range = xrange(1, N+1)
+        a_range = np.arange(0, N, 1)
+        pmax_array = np.array([p_max(tablefunc, a, tSNR, endpoint, dfade) for a in a_range])
+        pprotocol = np.dot(rv.pmf(a_range), (1 - (1 - pmax_array)**(N - a_range)))
+    return tSNR
+
+
+def down_fade_gap_inner(N, tablefunc, target, tSNR_range, rSNR1_range, rSNR2, pa2=10**(-10)):
+    for tSNR in tSNR_range:
+        h2 = 10**((rSNR2 - tSNR)/10)
+        pf2 = 1 - np.exp(-h2)
+        # p2 = pf2 + (1-pf2)*pa2
+        for rSNR1 in rSNR1_range:
+            pa1 = tablefunc(rSNR1)
+            h1 = 10**((rSNR1 - tSNR)/10) # linear fade
+            pf1 = 1 - np.exp(-h1)
+            # pf2c = 1
+            pf2c = 1 - np.exp(h1-h2) if h2 > h1 else 0
+            rv_g = binom(N, 1 - pf1)
+            result = 0 # rv_g.pmf(0)
+            for g in xrange(1, N+1, 1):
+                rv_a = binom(g, 1 - pa1)
+                a_range = np.arange(0, g+1, 1)
+                qpf2 = np.power(pf2, a_range)
+                qE = qpf2 + (1-qpf2)*pa2
+                qB = qpf2 * pf2c + (1 - qpf2*pf2c)*pa2
+                # qB = qE * (pf2c + (1 - pf2c)*pa2)
+                psuccess = (1-qE)**(N-g) * np.power((1-qB), g-a_range)
+                z = rv_g.pmf(g) * np.dot(rv_a.pmf(a_range), 1-psuccess)
+                result += z
+                if result > target:
+                    break
+            if result < target:
+                return np.array([N, tSNR, rSNR1, rSNR2])
+
+# def down_fade_gap(codingscheme, target, start_tSNR, start_nodes=2, end_nodes=36):
+#     for N in range(start_nodes, end_nodes):
+#         filename = codingscheme + '/n' + str(N) + '.in'
+#         codetable = load_table(filename)
 
 # Uplink Functions
 def uplink(codingscheme, dSNR, target, paddratio, start_SNR, start_nodes, end_nodes):

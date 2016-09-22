@@ -83,7 +83,7 @@ def xor_analysis_new(N, tSNR, rSNRdu, rSNR3, p_a1=10**(-9), p_a2=10**(-9), p_a3=
                         rv_ads = binom(ad_s, 1 - p_link_2)
                         rv_adi = binom(ad_i, 1 - p_link_2)
                         q_ad_hat_s = p_a3
-                        q_ad_hat_i = p_link_2**ad_s + (1 - p_link_2)**ad_s * p_a3
+                        q_ad_hat_i = p_link_2**ad_s + (1 - p_link_2**ad_s) * p_a3
                         # This is the problem zone that doesn't support vectorization (?)
                         ks, ki = np.arange(1, ad_s+1), np.arange(0, ad_i+1)
                         f_e = p_link_2**ad_s + (np.dot(rv_ads.pmf(ks), np.power(p_f3, ks)) * np.dot(rv_adi.pmf(ki), np.power(p_f3, ki)) if p_f3 else 0)
@@ -213,7 +213,7 @@ def xor_analysis_pruned(N, tSNR, rSNRdu, rSNR3, p_a1=10**(-9), p_a2=10**(-9), p_
                         rv_ads = binom(ad_s, 1 - p_link_2)
                         rv_adi = binom(ad_i, 1 - p_link_2)
                         q_ad_hat_s = p_a3
-                        q_ad_hat_i = p_link_2**ad_s + (1 - p_link_2)**ad_s * p_a3
+                        q_ad_hat_i = p_link_2**ad_s + (1 - p_link_2**ad_s) * p_a3
                         # This is the problem zone that doesn't support vectorization (?)
                         ks, ki = np.arange(1, ad_s+1), np.arange(0, ad_i+1)
                         f_e = p_link_2**ad_s + (np.dot(rv_ads.pmf(ks), np.power(p_f3, ks)) * np.dot(rv_adi.pmf(ki), np.power(p_f3, ki)) if p_f3 else 0)

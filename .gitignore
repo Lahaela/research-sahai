@@ -1,0 +1,21 @@
+# Python specific
+*.pyc
+__pycache__
+.ipynb_checkpoints
+
+[Tt]humbs.db
+*.DS_Store
+
+*.m~
+*.mat
+
+# Latex specific
+*.annotations
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.bbl
+*.blg
+*.synctex.gz
